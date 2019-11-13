@@ -11,11 +11,13 @@ Followed some time after by rescue workers looking through the rubble for people
 
 As I was following the aftermath of hurricane Dorian recently, rescue workers were again frantically searching a relatively wide area (in the Bahamas this time) for survivors. It seemed to be a painstaking process, searching from the ground as well as from helicopters and planes.
 
-And while this was playing out, I was browing the web and looking at some satellite images of the impacted area. We now apparently have color images at 70 cm resolution, multiple times a day. And then it hit me: wouldn't it be cool if survivors belowe could somehow signal via these images that they needed help?
+And while this was playing out, I was browing the web and looking at some satellite images of the impacted area. We now apparently have color images at 70 cm resolution, multiple times a day. And then it hit me: wouldn't it be cool if survivors below could somehow signal via these images that they needed help?
 
 ![](images/puinzooi.jpg)
 
-It seems clear to me that people in denser towns can find help or at least make their presence known simply because there are more people around them. 
+It seems clear to me that people in cities and towns can find help or at least make their presence known simply because there are more people around them. It's the people in rural and other more sparsely populated areas that are likely to need to signal for help. 
+
+![](images/rescue.png)
 
 &nbsp;
 
