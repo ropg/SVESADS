@@ -5,19 +5,22 @@
 &nbsp;
 
 
-Natural disasters can be awe-inspiring. I guess it's different for everyone, but no natural disaster impresses me more than a hurricane. The sheer size of the destruction, the flattened houses, the flooding. People with no roof over their head, no access to water or food, power and communications cut off, sometimes for weeks. 
+Natural disasters can be awe-inspiring. I guess it's different for everyone, but no natural disaster impresses me more than a hurricane. The sheer size of the destruction, the flattened houses, the flooding. People with no roof over their head, no access to water or food, power and communications cut off, sometimes for weeks.
+
+![](images/puinzooi.jpg)
 
 Followed some time after by rescue workers looking through the rubble for people that had stayed behind and now need help.
 
 As I was following the aftermath of hurricane Dorian recently, rescue workers were again frantically searching a relatively wide area (in the Bahamas this time) for survivors. It seemed to be a painstaking process, searching from the ground as well as from helicopters and planes.
 
-And while this was playing out, I was browing the web and looking at some satellite images of the impacted area. We now apparently have color images at 70 cm resolution, multiple times a day. And then it hit me: wouldn't it be cool if survivors below could somehow signal via these images that they needed help?
-
-![](images/puinzooi.jpg)
-
-It seems clear to me that people in cities and towns can find help or at least make their presence known simply because there are more people around them. It's the people in rural and other more sparsely populated areas that are likely to need to signal for help. 
+If and when there is enough help available (a big if in some cases), people in cities and denser towns can find help or at least make their presence known simply because there are more people around them. It's the people in rural and other more sparsely populated areas whose lives are more likely to depnd on the aility to signal for help. 
 
 ![](images/rescue.png)
+
+And then there's the situations where people may be searching for a single group or invidual, lost in what may be a very large area. As seen abovem, people have survived because of makeshift signals, seen from low-flying aircraft or helicopters. Such signals can be seen from a few kilometers distance.
+
+While the rescue efforts during the aftermath of hurricane Dorian were in progress, I was browing the web and looking at some satellite images of the impacted area. We now apparently have color images at 70 cm resolution, multiple times a day. And then it hit me: wouldn't it be amazing if survivors below could somehow signal via these images that they needed help? With regular images like we seem to have now, we should also have a way to find isolated people that need help in an area the size of a whole country.
+
 
 &nbsp;
 
@@ -25,9 +28,9 @@ It seems clear to me that people in cities and towns can find help or at least m
 
 So what we're looking for is a way to signal that help is needed, to be seen on satellite images. Here's some thoughts on this signal, in no particular order and with no guarantee that these all hold true.
 
-* Very regularly taken (multiple times a day in some cases) satellite images seem to be available for disaster areas, presently at a resolution where each pixel represents 70cm x 70cm (27" x 27") on the ground.
+* Very regularly taken (multiple times a day in some cases) satellite images seem to be available for disaster areas, presently at a resolution where each pixel represents 70cm x 70cm (27" x 27") on the ground. While this is seen as a fairly high resolution for civilian satellite imagery, it is still a problematic resolution for signalling something unique.
 
-* The space the suvivor has to make this signal may be as little as a roof in a flooded area, so let's say that is on the order of 7 x 7 meters. That means the signal has to be recognisable at as little as 10x10 pixels.
+* The space the suvivor has to make this signal may be as little as a roof in a flooded area, so let's say that is on the order of 7 x 7 meters. That means that optimally, the signal has to be recognisable at as little as 10x10 pixels.
 
 * Ideally survivors would be able to create the signal from a wide range of materials that might be available to them.
 
@@ -61,6 +64,6 @@ I decided I needed to look at actual aerial images. So I bought a 4 x 6 meter [w
 
 ## Open questions and next steps
 
-We'll need to learn if we can reliably find this triangle shape without too many false positives or if we need a more complex shape. Many more test images will need to be availbale for computer vision and machine learning people to play with. Given the complexitity of actually tasking 70cm sat images for testing purposes, we may for a while depend on manipulated existing aerial photos and drone images of actual shapes on the ground and scaled so that the pixels are 70 x 70 cm.  
+We'll need to learn if we can reliably find this triangle shape without too many false positives or if we need a more complex shape. Many more test images will need to be availbale for computer vision and machine learning people to play with. Given the apparent  complexitity of actually tasking 70cm sat images for testing purposes, we may for a while depend on manipulated existing aerial photos and drone images of actual shapes on the ground and scaled so that the pixels are 70 x 70 cm. We may need a tools to overlay realistic low-res renditions shapes on existing aerial images.
 
 In that case the quest becomes figuring out a simple shape that is hopefully still small enough to still fit on a roof and that can in a pinch be created without fancy measuring procedures or pre-cut materials. It may well be that we need more than the proposed 10x10 pixels to get reliable recognition. For all I know we might learn that the optimal shape to be recognized by software is the human nipple, because of the amount of existing research on the topic.
