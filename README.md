@@ -13,13 +13,13 @@ Followed some time after by rescue workers looking through the rubble for people
 
 As I was following the aftermath of hurricane Dorian recently, rescue workers were again frantically searching a relatively wide area (in the Bahamas this time) for survivors. It seemed to be a painstaking process, searching from the ground as well as from helicopters and planes.
 
-If and when there is enough help available (a big if in some cases), people in cities and denser towns can find help or at least make their presence known simply because there are more people around them. It's the people in rural and other more sparsely populated areas whose lives are more likely to depnd on the aility to signal for help. 
+If and when there is enough help available (a big if in some cases), people in cities and denser towns can find help or at least make their presence known simply because there are more people around them. It's the people in rural and other more sparsely populated areas whose lives are more likely to depend on the aility to signal for help. 
 
 ![](images/rescue.png)
 
-And then there's the situations where people may be searching for a single group or invidual, lost in what may be a very large area. As seen abovem, people have survived because of makeshift signals, seen from low-flying aircraft or helicopters. Such signals can be seen from a few kilometers distance.
+And then there's the situations where people may be searching for a single group or invidual, lost in what may be a very large area. As seen above, people have survived because of makeshift signals, seen from low-flying aircraft or helicopters. Such signals can be seen from a few kilometers distance and are certainly a large step up from having to search the area on the surface. But when the search area is very large, even the ability to search from the low-flying aircraft still 
 
-While the rescue efforts during the aftermath of hurricane Dorian were in progress, I was browing the web and looking at some satellite images of the impacted area. We now apparently have color images at 70 cm resolution, multiple times a day. And then it hit me: wouldn't it be amazing if survivors below could somehow signal via these images that they needed help? With regular images like we seem to have now, we should also have a way to find isolated people that need help in an area the size of a whole country.
+While the rescue efforts during the aftermath of hurricane Dorian were in progress, I was browing the web and at some point looking at satellite images of the impacted area. It struck me that when disaster strikes, we now apparently have color images at 70 cm resolution, taken multiple times a day. And then it hit me: wouldn't it be amazing if survivors below could somehow signal via these images that they needed help? With regular images like we seem to have now, we would have a way to find isolated people that need help in an area the size of a whole country.
 
 
 &nbsp;
@@ -28,15 +28,15 @@ While the rescue efforts during the aftermath of hurricane Dorian were in progre
 
 So what we're looking for is a way to signal that help is needed, to be seen on satellite images. Here's some thoughts on this signal, in no particular order and with no guarantee that these all hold true.
 
-* Very regularly taken (multiple times a day in some cases) satellite images seem to be available for disaster areas, presently at a resolution where each pixel represents 70cm x 70cm (27" x 27") on the ground. While this is seen as a fairly high resolution for civilian satellite imagery, it is still a problematic resolution for signalling something unique.
+* Very regularly taken (multiple times a day in some cases) satellite images seem to be available for disaster areas, presently at a resolution where each pixel represents 70cm x 70cm (27" x 27") on the ground. While this is seen as a fairly high resolution for civilian satellite imagery, it is still a fairly problematic resolution for signalling something unique.
 
 * The space the suvivor has to make this signal may be as little as a roof in a flooded area, so let's say that is on the order of 7 x 7 meters. That means that optimally, the signal has to be recognisable at as little as 10x10 pixels.
 
 * Ideally survivors would be able to create the signal from a wide range of materials that might be available to them.
 
-* Survivors will probable not have available materials in various colors, and satellite images may not be color-corrected and taken at differing times of day and in various reflective circumstances. A monochrome signal that simply has to contrast with the environment may make sense. 
+* Survivors will probable not have available materials in various colors, and satellite images may not be color-corrected and taken at differing times of day and in various reflective circumstances. A monochrome signal that simply has to contrast with the environment might make most sense. 
 
-* When it comes to recognising a signal that is both simple and low-resolution, there will unavoidably be false positives. Some large fraction of these will be features of buildings and or landscape that were also present pre-disaster. IF pre-disaster images are available, one would expect many of these false positives can be excluded. 
+* When it comes to recognising a signal that is both simple and low-resolution, there will unavoidably be false positives. Some large fraction of these will be features of buildings and or landscape that were also present pre-disaster. If pre-disaster images are available, one would expect many of these false positives can be excluded.
  
 &nbsp;
 
