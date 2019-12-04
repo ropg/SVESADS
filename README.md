@@ -19,7 +19,7 @@ If and when there is enough help available (a big if in some cases), people in c
 
 And then there's the situations where people may be searching for a single group or invidual, lost in what may be a very large area. As seen above, people have survived because of makeshift signals, seen from low-flying aircraft or helicopters. Such signals can be seen from a few kilometers distance and are certainly a large step up from having to search the area on the surface. But when the search area is very large, even the ability to search from the low-flying aircraft still 
 
-While the rescue efforts during the aftermath of hurricane Dorian were in progress, I was browing the web and at some point looking at satellite images of the impacted area. It struck me that when disaster strikes, we now apparently have color images at 70 cm resolution, taken multiple times a day. And then it hit me: wouldn't it be amazing if survivors below could somehow signal via these images that they needed help? With regular images like we seem to have now, we would have a way to find isolated people that need help in an area the size of a whole country.
+While the rescue efforts during the aftermath of hurricane Dorian were in progress, I was browsing the web and at some point looking at satellite images of the impacted area. It struck me that when disaster strikes, we now apparently have color images at 70 cm resolution, taken multiple times a day. And then it hit me: wouldn't it be amazing if survivors below could somehow signal via these images that they needed help? With regular images like we seem to have now, we would have a way to find isolated people that need help in an area the size of a whole country.
 
 
 &nbsp;
@@ -36,7 +36,7 @@ So what we're looking for is a way to signal that help is needed, to be seen on 
 
 * Survivors will probable not have available materials in various colors, and satellite images may not be color-corrected and taken at differing times of day and in various reflective circumstances. A monochrome signal that simply has to contrast with the environment might make most sense. 
 
-* When it comes to recognising a signal that is both simple and low-resolution, there will unavoidably be false positives. Some large fraction of these will be features of buildings and or landscape that were also present pre-disaster. If pre-disaster images are available, one would expect many of these false positives can be excluded.
+* When it comes to recognising a low-resolution image of a very basic shape, there will unavoidably be false positives. Some large fraction of these will be features of buildings and or landscape that were also present pre-disaster. If pre-disaster images are available, one would expect many of these false positives can be excluded.
  
 &nbsp;
 
@@ -59,6 +59,15 @@ I decided I needed to look at actual aerial images. So I bought a 4 x 6 meter [w
 ![](images/drone-triangle-70cm-detail.png)
 
 (Here's the [original image](images/drone-triangle-orig.jpg) and the one [scaled down](images/drone-triangle-70cm.png) to 70 cm pixels.)
+
+&nbsp;
+
+## H for help
+
+When looking at various aerial images, it's clear the triangle is too simple: there's simply too damn many traingles appearing in the wild. So we need a more complex shape, yet one that is still simple enough to show itself when scaled down to something like 10x10 pixels and simple enough to be remembered and made by people in distress with whatever materials they have at hand. Behold the second experiment: "H for help"
+
+![](images/H.png)
+
 
 &nbsp;
 
