@@ -1,0 +1,530 @@
+#!/Library/Frameworks/Python.framework/Versions/3.8/bin/python3
+# Replace path above with path to your python3 executable
+
+import numpy as np
+# import imutils
+import cv2
+import json
+import os
+import uuid
+
+import argparse
+# Below lists all the help for the subcommands on one page instead of needing 'command subcommand help'.
+# See https://stackoverflow.com/questions/20094215/argparse-subparser-monolithic-help-output
+class _HelpAction(argparse._HelpAction):
+
+    def __call__(self, ap, namespace, values, option_string=None):
+        ap.print_help()
+        print()
+
+        # retrieve subparsers from parser
+        subparsers_actions = [
+            action for action in ap._actions
+            if isinstance(action, argparse._SubParsersAction)]
+        # there will probably only be one subparser_action,
+        # but better save than sorry
+        for subparsers_action in subparsers_actions:
+            # get all subparsers and print help
+            for choice, subparser in subparsers_action.choices.items():
+                print("\nsubcommand '{}'".format(choice))
+                print(subparser.format_help())
+
+        ap.exit()
+
+
+# Mouse events handler for --manual mode
+def mouse_events(event, x, y, flags, param):
+	global points, redraw, marksize
+	if event == cv2.EVENT_LBUTTONDOWN:
+		# Figure out if this is a delete by seeing if close to an existing point
+		for p in points:
+			px, py = p
+			dx = abs(x - px)
+			dy = abs(y - py)
+			if dx < 15 and dy < 15:
+				# delete point, let key scan loop handle redraw
+				points.remove(p)
+				redraw = True
+		# if no point deleted then add a new point and draw circle on photo
+		if not redraw:
+			points.append((x, y))
+			cv2.circle(photo, (x, y), marksize, (0,0,255), 3)
+			cv2.imshow('marking', photo)
+
+
+# Below is rotate_bound from imutils's convenience.py, but modified for transparent background
+def rotate_bound_on_transparent(image, angle):
+	# grab the dimensions of the image and then determine the
+	# center
+	(h, w) = image.shape[:2]
+	(cX, cY) = (w // 2, h // 2)
+
+	# grab the rotation matrix (applying the negative of the
+	# angle to rotate clockwise), then grab the sine and cosine
+	# (i.e., the rotation components of the matrix)
+	M = cv2.getRotationMatrix2D((cX, cY), -angle, 1.0)
+	cos = np.abs(M[0, 0])
+	sin = np.abs(M[0, 1])
+
+	# compute the new bounding dimensions of the image
+	nW = int((h * sin) + (w * cos))
+	nH = int((h * cos) + (w * sin))
+
+	# adjust the rotation matrix to take into account translation
+	M[0, 2] += (nW / 2) - cX
+	M[1, 2] += (nH / 2) - cY
+
+	# perform the actual rotation, on a transparent background
+	return cv2.warpAffine(
+		image, M, (nW, nH),
+		borderMode=cv2.BORDER_CONSTANT,
+		borderValue=(255,255,255,0)
+	)
+	
+
+def make_signal(shapefile, scale, perspective, rotation):
+
+	global meta
+
+	image = cv2.imread(shapefile, cv2.IMREAD_UNCHANGED)
+	
+	# perspective
+
+	psp_rot, psp = perspective
+	image = rotate_bound_on_transparent(image, psp_rot)
+	h, w = image.shape[:2]
+	src = np.float32( [ [0, 0], [w-1, 0], [w-1, h-1], [0, h-1] ] )
+	dst = np.float32( [ [psp, psp], [w-psp, psp], [w-1, h-1], [0, h-1] ] )
+	M = cv2.getPerspectiveTransform(src, dst)
+	image = cv2.warpPerspective(image, M, (w, h))
+	image = rotate_bound_on_transparent(image, -psp_rot)
+
+	
+	# Rotate
+	image = rotate_bound_on_transparent(image, rotation)
+
+	# Shrink
+	# first add random borders to "jiggle" the image a bit
+	h, w = image.shape[:2]
+	top = np.random.randint(0, scale)
+	bottom = scale - ( (h + top) % scale )
+	left = np.random.randint(0, scale)
+	right = scale - ( (w + left) % scale )
+	image = cv2.copyMakeBorder(image, top, bottom, left, right, borderType=cv2.BORDER_CONSTANT, value=(255,255,255,0))	
+	nh = int(h / scale)
+	nw = int(w / scale)
+	image = cv2.resize(image, (nw, nh), interpolation=cv2.INTER_AREA)
+
+
+	# Crop the final output image
+	# mask is the alpha channel
+	mask = image[:,:,3]
+	# clip any rows or cols with only transparent pixels
+	image = image[np.ix_(mask.any(1),mask.any(0))]
+
+	# Add one transparent pixel for mask
+	image = cv2.copyMakeBorder(image, 1, 1, 1, 1, borderType=cv2.BORDER_CONSTANT, value=(255,255,255,0))
+
+	# Redistribute transparency
+	rows, cols = image.shape[:2]
+	for i in range(rows):
+		for j in range(cols):
+			# transparency values 0-255 redistributed to 128-255
+			if image[i][j][3] > 0:
+				image[i][j][3] = 128 + ( image[i][j][3] / 256 ) * 128
+				
+	return image
+	
+
+def make_mask(image):
+	mask = image[:,:,3]
+	mask = cv2.blur(mask,(3,3))
+	h, w = image.shape[:2]
+	for i in range(h):
+		for j in range(w):
+			if mask[i][j]: mask[i][j] = 255
+	return mask
+
+	
+def merge_signal(photo, signal, p, lighter):
+	x, y = p
+	h, w = signal.shape[:2]
+	sx = int(x - (w / 2))
+	sy = int(y - (h / 2))
+	for i in range(h):
+		for j in range(w):
+			photopixel = photo[sy + i][sx + j]
+			alpha = signal[i][j][3] / 255
+			for c in range(3):
+				photo[sy + i][sx + j][c] = to_byte( photo[sy + i][sx + j][c] + (lighter * alpha) )
+	return photo
+
+	
+def normal_dist(mean, sd, minimum=0, maximum=255):
+	r = int(np.random.normal(mean, sd))
+	return max(min(r, maximum), minimum)
+	
+def to_byte(value):
+	return max(min(int(value), 255), 0)
+
+def place_mark(x = -1, y = -1, forced = False):
+	global photo, training_data, resolution
+	minbrightdiff, maxbrightdiff = range_split(args.brightdiff)
+	lighter = np.random.randint(int(minbrightdiff), int(maxbrightdiff) + 1)
+	scale = int( resolution / np.random.uniform(float(minsize), float(maxsize)) )
+	perspective = ( np.random.randint(0,359), np.random.randint(0, args.perspective) )
+	rotation = np.random.randint(0,359)
+	# First make signal in all white just to get mask for finding quiet spot
+	signal = make_signal(args.shape, scale, perspective, rotation)
+	mask = make_mask(signal)
+	sh, sw = signal.shape[:2]
+	minx = sw / 2
+	miny = sh / 2
+	maxx = pw - (sw / 2) - 1 
+	maxy = ph - (sh / 2) - 1
+	if x == -1:
+		x = np.random.randint(minx, maxx)
+		y = np.random.randint(miny, maxy)
+	wrapped = False
+	while True:
+		sx = int(x - (sw / 2))
+		sy = int(y - (sh / 2))
+		#crop photo to size of mask
+		roi = photo[sy:sy+sh, sx:sx+sw]
+		mean, stddev = cv2.meanStdDev(roi, mask=mask)
+		area_lightness = np.mean(mean)
+		if max(stddev) < args.clearlanding or forced:
+			if area_lightness > normal_dist(110, 60):
+				lighter = - lighter
+			photo = merge_signal(photo, signal, (x, y), lighter)
+			if args.output:
+				training_data.write('  <object>\n    <name>signal</name>\n    <difficult>0</difficult>\n    <bndbox>\n')
+				training_data.write('      <xmin>' + str(sx) + '</xmin>\n')
+				training_data.write('      <ymin>' + str(sy) + '</ymin>\n')
+				training_data.write('      <xmax>' + str(sx + sw) + '</xmax>\n')
+				training_data.write('      <ymax>' + str(sy + sh) + '</ymax>\n')
+				training_data.write('    </bndbox>\n  </object>\n')
+				
+			break;
+		x += np.random.randint(10,30)
+		if x >= maxx:
+			x = minx
+			y += np.random.randint(10,30)
+			if y >= maxy:
+				if wrapped:
+					break
+				else:
+					y = miny
+					wrapped = True
+
+
+def range_split(s):
+	if s.find('-') != -1:
+		return s.split('-')
+	else:
+		return s, s
+
+
+# construct the argument parser and parse the arguments
+ap = argparse.ArgumentParser(add_help=False)
+ap.add_argument('--help', '-h',
+	action=_HelpAction,
+	help='Shows this help text')
+sp = ap.add_subparsers(dest='subcommand',
+	help='You must specify one of these subcommands')
+
+manual = sp.add_parser('manual', add_help=False)
+manual.add_argument('--input', '-i',
+	help='input aerial image file',
+	required=True,
+	metavar='<inputfile>')
+manual.add_argument('--resolution',
+	metavar='<pixelsize>',
+	help='Specify image resolution in centimeters per pixel, must specify if no image metadata exists yet',
+	type=int)
+
+debug = sp.add_parser('debug', add_help=False)
+debug.add_argument('--resolution',
+	metavar='<pixelsize>',
+	help='Specify image resolution in centimeters per pixel',
+	required=True,
+	type=int)
+debug.add_argument('--shape', '-s',
+	help='path to shape file for signal marks. 1 px = 1 cm, white on transparent bg',
+	required=True,
+	metavar='<shapefile>')
+debug.add_argument('--output', '-o',
+	help='output file, defaults to show on screen. If the word RANDOM (in all caps) appears anywhere, it will be replaced by eight random hex characters so you can write to unique random files.',
+	metavar='<outputfile>')
+debug.add_argument('--rotate', '-r',
+	help='rotation in degrees, defaults to random rotation',
+	metavar='<deg>',
+	type=int,
+	default=-1)
+debug.add_argument('--perspective', '-p',
+	help='Maximum random perspective shift in cm',
+	metavar='<cm>',
+	type=int,
+	default=100)
+
+mark = sp.add_parser('mark', add_help=False)
+mark.add_argument('--shape', '-s',
+	help='path to shape file for signal marks. 1 px = 1 cm, white on transparent bg',
+	required=True,
+	metavar='<shapefile>')
+mark.add_argument('--input', '-i',
+	help='input aerial image file',
+	required=True,
+	metavar='<inputfile>')
+mark.add_argument('--resolution',
+	metavar='<pixelsize>',
+	help='Specify image resolution in centimeters per pixel',
+	type=int)
+mark.add_argument('--output', '-o',
+	help='output file, defaults to show on screen. If the word RANDOM (in all caps) appears anywhere, it will be replaced by eight random hex characters so you can write to unique random files.',
+	metavar='<outputfile>')
+mark.add_argument('--random',
+	help='add between <from> and <to> randomly located signals',
+	metavar='<from>-<to>',
+	default='0-0',
+	type=str)
+mark.add_argument('--clearlanding', '-l',
+	help='Maximum stddev in any color channel for area to be suitably quiet for signal placement',
+	metavar='<stddev>',
+	default=10,
+	type=int)
+mark.add_argument('--brightdiff',
+	help='Range to increae or decrease pixels values by to create a mark. So setting 30-50 makes it pick one random value from 30 to 50 per mark to increase or decrease lightness of the mark area by.',
+	metavar='<from>-<to>',
+	type=str,
+	default='30-90')
+mark.add_argument('--perspective', '-p',
+	help='Maximum random perspective shift in cm',
+	metavar='<cm>',
+	type=int,
+	default=100)
+mark.add_argument('--sizerange',
+	help='Random variation in signal size, e.g.: --sizerange 0.8-1.5',
+	metavar='<smallest-biggest>',
+	type=str,
+	default='0.9-1.1')
+	
+crop = sp.add_parser('crop', add_help=False)
+crop.add_argument('--input', '-i',
+	help='input aerial image file',
+	required=True,
+	metavar='<inputfile>')
+crop.add_argument('--output', '-o',
+	help='output file, defaults to show on screen. If the word RANDOM (in all caps) appears anywhere, it will be replaced by eight random hex characters so you can write to unique random files.',
+	metavar='<outputfile>')	
+crop.add_argument('--width', '-w',
+	help='width of cropped area',
+	metavar='<width>',
+	default=6545,
+	type=int)
+crop.add_argument('--height', '-h',
+	help='height of cropped area',
+	metavar='<height>',
+	default=3417,
+	type=int)
+crop.add_argument('-x',
+	help='x of left top',
+	metavar='<x>',
+	default=0,
+	type=int)
+crop.add_argument('-y',
+	help='y of left top',
+	metavar='<y>',
+	default=54,
+	type=int)
+	
+chop = sp.add_parser('chop', add_help=False)
+chop.add_argument('--input', '-i',
+	help='input aerial image file',
+	required=True,
+	metavar='<inputfile>')
+chop.add_argument('--output', '-o',
+	help='output file, defaults to show on screen. If the word RANDOM (in all caps) appears anywhere, it will be replaced by eight random hex characters so you can write to unique random files.',
+	metavar='<outputfile>')	
+chop.add_argument('--width', '-w',
+	help='width of each chunk',
+	metavar='<width>',
+	default=300,
+	type=int)
+chop.add_argument('--height', '-h',
+	help='height of each chunk',
+	metavar='<height>',
+	default=300,
+	type=int)
+
+args = ap.parse_args()
+
+
+# manual subcommand
+# (Works in conjunction with mouse handler mouse_events above)
+
+if args.subcommand == 'manual':
+
+	cv2.namedWindow('marking', cv2.WINDOW_NORMAL)
+	cv2.setMouseCallback('marking', mouse_events)
+	
+	# See if we have a metadate file <imagefilename.json>
+	if os.access(args.input + '.json', os.R_OK):
+		with open(args.input + '.json', 'r') as f:
+			meta = json.load(f)
+			points = list(meta['points'])
+	else:
+		# If no metadata file, initialise using specified resolution and empty points list
+		if not args.resolution:
+			print('No metadata found, must specify pixel size in centimeters using --resolution.')
+			quit()
+		meta = dict()
+		points = list()
+		meta['resolution'] = args.resolution
+		
+	marksize = int(1000 / meta['resolution'])
+			
+	# Always (re)draw points after loading image
+	# (redraw variable is made True in mouse_events, where it is a global)
+	redraw = True
+	while True:
+		if redraw:
+			photo = cv2.imread(args.input, cv2.IMREAD_UNCHANGED)
+			for p in points:
+				x, y = p
+				cv2.circle(photo, (x, y), marksize, (0,0,255), 3)
+			cv2.imshow('marking', photo)
+			redraw = False
+		key = cv2.waitKey(1) & 0xFF		
+		if key == ord('q'):
+			quit()
+		if key == ord('s'):
+			print('Saving point data ... ', end = '')
+			with open(args.input + '.json', 'w') as f:
+				meta['points'] = points
+				json.dump(meta, f)
+			print('done.')
+			quit()
+			
+
+
+
+# --debug subcommand
+# Show only one mark (in greyscale), or write it to output file
+
+if args.subcommand == 'debug':
+
+	angle = args.rotate
+	if angle == -1:
+		angle = np.random.randint(0, 359)
+		
+	perspective = ( np.random.randint(0, 359), np.random.randint(0, args.perspective))
+
+	image = make_signal(args.shape, args.resolution, perspective, angle)
+	if not args.output:
+		mask = make_mask(image)
+		cv2.imshow('mask', mask)	
+		image = image[:,:,3]
+		cv2.imshow('output', image)
+		cv2.waitKey()
+	else:
+		outfile = args.output.replace("RANDOM", str(uuid.uuid4())[0:8])
+		cv2.imwrite(outfile, image)
+	quit()
+	
+
+
+
+# mark subcommand
+
+if args.subcommand == 'mark':
+
+	minsize, maxsize = range_split(args.sizerange)
+	minrandom, maxrandom = range_split(args.random)
+	random = np.random.randint(int(minrandom), int(maxrandom) + 1)
+	    
+	# See if we have a metadate file <imagefilename.json>
+	if not os.access(args.input + '.json', os.R_OK):
+		if args.resolution:
+			resolution = args.resolution
+			points = []
+		else:
+			print('No resolution specified or metadata found.')
+			quit()
+	else:
+		with open(args.input + '.json', 'r') as f:
+			meta = json.load(f)
+			resolution = meta['resolution']
+			points = list(meta['points'])
+
+	photo = cv2.imread(args.input, cv2.IMREAD_UNCHANGED)
+	ph, pw = photo.shape[:2]
+	
+	if args.output:
+		outfile = args.output.replace("RANDOM", str(uuid.uuid4())[0:8])
+		training_data = open(outfile + '.xml', 'w')
+		training_data.write('<annotation>\n  <size>\n    <width>' + str(pw) + '</width>\n    <height>' + str(ph) + '</height>\n  </size>\n')
+	
+	for p in points:
+		x, y = p
+		# Force the mark in this spot with the final argument True
+		place_mark(x, y, True)
+	
+	if random:
+		for r in range(random):
+			place_mark()
+
+	if not args.output:
+		cv2.namedWindow('output', cv2.WINDOW_NORMAL)
+		h, w = photo.shape[:2]
+		if h > 768 or w > 1024:
+			cv2.resizeWindow('output', (1024, 768))
+		cv2.imshow('output', photo)
+		cv2.waitKey()
+	else:
+		training_data.write('</annotation>\n')
+		training_data.close()
+		cv2.imwrite(outfile, photo)
+	quit()
+	
+
+
+# crop subcommand
+
+if args.subcommand == 'crop':
+
+	photo = cv2.imread(args.input, cv2.IMREAD_UNCHANGED)
+	
+	photo = photo[args.y:args.y + args.height, args.x:args.x + args.width]
+	
+	if not args.output:
+		cv2.namedWindow('output', cv2.WINDOW_NORMAL)
+		h, w = photo.shape[:2]
+		if h > 768 or w > 1024:
+			cv2.resizeWindow('output', (1024, 768))
+		cv2.imshow('output', photo)
+		cv2.waitKey()
+	else:
+		outfile = args.output.replace("RANDOM", str(uuid.uuid4())[0:8])
+		cv2.imwrite(outfile, photo)
+	quit()
+	
+	
+# chop subcommand
+
+if args.subcommand == 'chop':
+
+	photo = cv2.imread(args.input, cv2.IMREAD_UNCHANGED)
+	h, w = photo.shape[:2]
+	
+	for i in range(0, w, args.width):
+		for j in range(0, h, args.height):
+			if w - i > args.width and h - j > args.height:
+				crop = photo[j:j + args.height, i:i + args.width]
+				if not args.output:
+					cv2.imshow('crop', crop)
+					cv2.waitKey()
+				else:
+					outfile = args.output.replace("RANDOM", str(uuid.uuid4())[0:8])
+					cv2.imwrite(outfile, crop)
+	quit()

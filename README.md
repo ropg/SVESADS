@@ -4,6 +4,9 @@
 
 &nbsp;
 
+> This will probably turn into a paper of some sort sooner or later, but at present it's just a way for me to document the project and for other people that want to help to get up to speed quickly...
+
+&nbsp;
 
 Natural disasters can be awe-inspiring. I guess it's different for everyone, but no natural disaster impresses me more than a hurricane. The sheer size of the destruction, the flattened houses, the flooding. People with no roof over their head, no access to water or food, power and communications cut off, sometimes for weeks.
 
@@ -19,7 +22,7 @@ If and when there is enough help available (a big if in some cases), people in c
 
 And then there's the situations where people may be searching for a single group or invidual, lost in what may be a very large area. As seen above, people have survived because of makeshift signals, seen from low-flying aircraft or helicopters. Such signals can be seen from a few kilometers distance and are certainly a large step up from having to search the area on the surface. But when the search area is very large, even the ability to search from the low-flying aircraft still 
 
-While the rescue efforts during the aftermath of hurricane Dorian were in progress, I was browsing the web and at some point looking at satellite images of the impacted area. It struck me that when disaster strikes, we now apparently have color images at 70 cm resolution, taken multiple times a day. And then it hit me: wouldn't it be amazing if survivors below could somehow signal via these images that they needed help? With regular images like we seem to have now, we would have a way to find isolated people that need help in an area the size of a whole country.
+While the rescue efforts during the aftermath of hurricane Dorian were in progress, I was browsing the web and at some point looking at satellite images of the impacted area. It struck me that when disaster strikes, we now apparently have color images at 70 cm or even 50 cm resolution, taken multiple times a day. And then it hit me: wouldn't it be amazing if survivors below could somehow signal via these images that they needed help? With regular images like we seem to have now, we would have a way to find isolated people that need help in an area the size of a whole country.
 
 
 &nbsp;
@@ -64,15 +67,14 @@ I decided I needed to look at actual aerial images. So I bought a 4 x 6 meter [w
 
 ## H for help
 
-When looking at various aerial images, it's clear the triangle is too simple: there's simply too damn many traingles appearing in the wild. So we need a more complex shape, yet one that is still simple enough to show itself when scaled down to something like 10x10 pixels and simple enough to be remembered and made by people in distress with whatever materials they have at hand. Behold the second experiment: "H for help"
+Even without trying to detect the triangle in software but just from looking at various aerial images, it's clear the triangle is probably too simple: there's simply too damn many triangles appearing in the wild. So this needs a more complex shape, yet one that is still simple enough to show itself when scaled down to something like 10x10 pixels and simple enough to be remembered and made by people in distress with whatever materials they have at hand. Behold the second experiment: "H for help"
 
 ![](images/H.png)
 
-
 &nbsp;
 
-## Open questions and next steps
+## Synthetic training data
 
-We'll need to learn if we can reliably find this triangle shape without too many false positives or if we need a more complex shape. Many more test images will need to be availbale for computer vision and machine learning people to play with. Given the apparent  complexitity of actually tasking 70cm sat images for testing purposes, we may for a while depend on manipulated existing aerial photos and drone images of actual shapes on the ground and scaled so that the pixels are 70 x 70 cm. We may need a tools to overlay realistic low-res renditions shapes on existing aerial images.
+It looks likely that finding noisy, perspectively shifted, lo-res and otherwise mutilated copies of these signals in large sets of aerial images is a job for AI, machine learning, neural networks or whatever you want to call it. I knew very little beyond the basics here, but what I did know is that any use of Machine Learning / AI will require tons of training data: many images that contain different varieties of the signal. 
 
-In that case the quest becomes figuring out a simple shape that is hopefully still small enough to still fit on a roof and that can in a pinch be created without fancy measuring procedures or pre-cut materials. It may well be that we need more than the proposed 10x10 pixels to get reliable recognition. For all I know we might learn that the optimal shape to be recognized by software is the human nipple, because of the amount of existing research on the topic.
+There's only so many times you can make large H shapes on the ground and fly a drone or order aerial imagery, so what is needed is synthetic training data. That means software that takes the basic shape and randomly rotates, perpectively shifts, colors, and puts noise on it. It then looks at the aerial image and finds a "quiet spot" to put that shape and blends it with the image so that the edge pixels correctly dither from the signal color to the background. My python program sigsim does it all. The [README](files/sigsim/README.md) in the sigsim directory explains how it works in case you want to create your own synthetic training data.
