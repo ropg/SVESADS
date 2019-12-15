@@ -1,14 +1,18 @@
 #!/Library/Frameworks/Python.framework/Versions/3.8/bin/python3
 # Replace path above with path to your python3 executable
 
+# install prerequisites with "pip3 install numpy cv2 sklearn json uuid"
+
 import numpy as np
-# import imutils
 import cv2
+from sklearn.cluster import KMeans
 import json
 import os
 import uuid
+import random
 
 import argparse
+
 # Below lists all the help for the subcommands on one page instead of needing 'command subcommand help'.
 # See https://stackoverflow.com/questions/20094215/argparse-subparser-monolithic-help-output
 class _HelpAction(argparse._HelpAction):
@@ -30,6 +34,26 @@ class _HelpAction(argparse._HelpAction):
                 print(subparser.format_help())
 
         ap.exit()
+
+# Using K-Means Clustering to find clusters of colors, finding a given number of the most dominant colors
+# See https://code.likeagirl.io/finding-dominant-colour-on-an-image-b4e075f98097
+def dominant_colors(img, num):
+	try:
+		img = np.delete(img, 3, 2)								# kill alpha channel
+	except:
+		pass
+	img = img.reshape((img.shape[0] * img.shape[1], 3)) 		#represent as row*column,channel number
+	sample = []
+	for i in range(10000):
+		sample.append(img[ np.random.randint(0,len(img)) ])
+	
+	clt = KMeans(n_clusters=num)
+	clt.fit(sample)
+	c = sorted(clt.cluster_centers_, key=sum, reverse=True)		# sort resulting colors from light to dark
+	for i in range(len(c)):
+		c[i] = list(c[i].astype(int))
+	return c
+
 
 
 # Mouse events handler for --manual mode
@@ -122,8 +146,8 @@ def make_signal(shapefile, scale, perspective, rotation):
 	# clip any rows or cols with only transparent pixels
 	image = image[np.ix_(mask.any(1),mask.any(0))]
 
-	# Add one transparent pixel for mask
-	image = cv2.copyMakeBorder(image, 1, 1, 1, 1, borderType=cv2.BORDER_CONSTANT, value=(255,255,255,0))
+	# Add transparent pixels for mask
+	image = cv2.copyMakeBorder(image, 3, 3, 3, 3, borderType=cv2.BORDER_CONSTANT, value=(255,255,255,0))
 
 	# Redistribute transparency
 	rows, cols = image.shape[:2]
@@ -138,7 +162,7 @@ def make_signal(shapefile, scale, perspective, rotation):
 
 def make_mask(image):
 	mask = image[:,:,3]
-	mask = cv2.blur(mask,(3,3))
+	mask = cv2.blur(mask,(5,5))
 	h, w = image.shape[:2]
 	for i in range(h):
 		for j in range(w):
@@ -146,8 +170,10 @@ def make_mask(image):
 	return mask
 
 	
-def merge_signal(photo, signal, p, lighter):
+def merge_signal(photo, signal, p, lighter, to_color):
 	x, y = p
+	x = int(x)
+	y = int(y)
 	h, w = signal.shape[:2]
 	sx = int(x - (w / 2))
 	sy = int(y - (h / 2))
@@ -156,7 +182,11 @@ def merge_signal(photo, signal, p, lighter):
 			photopixel = photo[sy + i][sx + j]
 			alpha = signal[i][j][3] / 255
 			for c in range(3):
-				photo[sy + i][sx + j][c] = to_byte( photo[sy + i][sx + j][c] + (lighter * alpha) )
+				pix = photo[sy + i][sx + j][c]
+				sig = to_color[c]
+				photo[sy + i][sx + j][c] = to_byte( pix + ( (lighter / 100) * alpha * abs(sig - pix) ) )
+	
+	cv2.circle(photo, (x, y), 20, (0,0,255), 3)
 	return photo
 
 	
@@ -168,54 +198,75 @@ def to_byte(value):
 	return max(min(int(value), 255), 0)
 
 def place_mark(x = -1, y = -1, forced = False):
-	global photo, training_data, resolution
-	minbrightdiff, maxbrightdiff = range_split(args.brightdiff)
-	lighter = np.random.randint(int(minbrightdiff), int(maxbrightdiff) + 1)
+
+	global photo, training_data, resolution, domcol
+
+	minsize, maxsize = range_split(args.sizerange)
 	scale = int( resolution / np.random.uniform(float(minsize), float(maxsize)) )
-	perspective = ( np.random.randint(0,359), np.random.randint(0, args.perspective) )
-	rotation = np.random.randint(0,359)
-	# First make signal in all white just to get mask for finding quiet spot
+	
+	if not args.lighter and not args.darker:
+		print("Must specify one or both of --lighter or --darker to indicate what kind of marks to place")
+		quit()		
+	cointoss = np.random.randint(0,2)
+	if args.lighter:
+		minlighter, maxlighter = range_split(args.lighter)	
+		lighter = np.random.randint(int(minlighter), int(maxlighter) + 1)
+		to_color = domcol[np.random.randint(0,3)]
+	if args.darker and (not args.lighter or cointoss):
+		mindarker, maxdarker = range_split(args.darker)	
+		lighter = - np.random.randint(int(mindarker), int(maxdarker) + 1)
+		to_color = domcol[len(domcol) - np.random.randint(1,4)]
+		
+	perspective = ( np.random.randint(0,360), np.random.randint(0, args.perspective) )
+	rotation = np.random.randint(0,360)
+
 	signal = make_signal(args.shape, scale, perspective, rotation)
 	mask = make_mask(signal)
 	sh, sw = signal.shape[:2]
 	minx = sw / 2
 	miny = sh / 2
-	maxx = pw - (sw / 2) - 1 
-	maxy = ph - (sh / 2) - 1
-	if x == -1:
-		x = np.random.randint(minx, maxx)
-		y = np.random.randint(miny, maxy)
-	wrapped = False
+	maxx = pw - (sw / 2)
+	maxy = ph - (sh / 2)
+
+	count = 0
+	if x == -1: 
+		randomspot = True
+	else:
+		randomspot = False
 	while True:
+		if randomspot:
+			x = np.random.randint(minx, maxx)
+			y = np.random.randint(miny, maxy)
+
 		sx = int(x - (sw / 2))
 		sy = int(y - (sh / 2))
 		#crop photo to size of mask
 		roi = photo[sy:sy+sh, sx:sx+sw]
 		mean, stddev = cv2.meanStdDev(roi, mask=mask)
+		mean = mean.reshape(1, -1)[0]
+		mean = mean[0:3]
 		area_lightness = np.mean(mean)
-		if max(stddev) < args.clearlanding or forced:
-			if area_lightness > normal_dist(110, 60):
-				lighter = - lighter
-			photo = merge_signal(photo, signal, (x, y), lighter)
+		target_lightness = np.mean(to_color)
+				
+		if ( max(stddev) > args.clearlanding and not forced ) or \
+		( sum(abs(mean - to_color)) < args.contrast ):
+			count += 1
+			if count > 10000:
+				print ("Cannot find landing spot")
+				break
+		else:
+			print (mean)
+			photo = merge_signal(photo, signal, (x, y), lighter, to_color)
+			print ("Placed mark at %d,%d: lighter %d, to_color %s" % (x, y, lighter, to_color))
 			if args.output:
 				training_data.write('  <object>\n    <name>signal</name>\n    <difficult>0</difficult>\n    <bndbox>\n')
 				training_data.write('      <xmin>' + str(sx) + '</xmin>\n')
 				training_data.write('      <ymin>' + str(sy) + '</ymin>\n')
 				training_data.write('      <xmax>' + str(sx + sw) + '</xmax>\n')
 				training_data.write('      <ymax>' + str(sy + sh) + '</ymax>\n')
-				training_data.write('    </bndbox>\n  </object>\n')
-				
+				training_data.write('    </bndbox>\n  </object>\n')				
 			break;
-		x += np.random.randint(10,30)
-		if x >= maxx:
-			x = minx
-			y += np.random.randint(10,30)
-			if y >= maxy:
-				if wrapped:
-					break
-				else:
-					y = miny
-					wrapped = True
+
 
 
 def range_split(s):
@@ -293,11 +344,19 @@ mark.add_argument('--clearlanding', '-l',
 	metavar='<stddev>',
 	default=10,
 	type=int)
-mark.add_argument('--brightdiff',
-	help='Range to increae or decrease pixels values by to create a mark. So setting 30-50 makes it pick one random value from 30 to 50 per mark to increase or decrease lightness of the mark area by.',
+mark.add_argument('--contrast', '-c',
+	help="Contrast as specified as the minimum sum total of the differences in the three color channels between mark and background color, default: 150",
+	metavar='<contrast>',
+	default=150,
+	type=int)
+mark.add_argument('--lighter',
+	help='Create marks by randomly picking a value in this range and then adding it to the RGB values for pixels in the mark area.',
 	metavar='<from>-<to>',
-	type=str,
-	default='30-90')
+	type=str)
+mark.add_argument('--darker',
+	help='Create marks by randomly picking a value in this range and then subtracting it from the RGB values for pixels in the mark area.',
+	metavar='<from>-<to>',
+	type=str)
 mark.add_argument('--perspective', '-p',
 	help='Maximum random perspective shift in cm',
 	metavar='<cm>',
@@ -439,7 +498,6 @@ if args.subcommand == 'debug':
 
 if args.subcommand == 'mark':
 
-	minsize, maxsize = range_split(args.sizerange)
 	minrandom, maxrandom = range_split(args.random)
 	random = np.random.randint(int(minrandom), int(maxrandom) + 1)
 	    
@@ -459,6 +517,8 @@ if args.subcommand == 'mark':
 
 	photo = cv2.imread(args.input, cv2.IMREAD_UNCHANGED)
 	ph, pw = photo.shape[:2]
+	
+	domcol = dominant_colors(photo, 10)
 	
 	if args.output:
 		outfile = args.output.replace("RANDOM", str(uuid.uuid4())[0:8])

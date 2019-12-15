@@ -24,7 +24,9 @@ First you need python3 installed. I have included the installation instructions 
 
   `./sigsim debug --resolution 70 --shape H.png` 
 
-  >(You should now get two small overlapping windows that show the shape of the H and the shape of the mask that will be used to see if the landing area for the H is clear enough (more about that later).
+  >(You should now get two small overlapping windows that show the shape of a randomly rotated and perspectively skewed 'H' and the shape of the larger mask that will be used to see if the landing area for the H is clear enough (more about that later).
+  
+  ![](images/debug-output.png)
   
 6. click in one of the windows and hit any key to stop the script: it's all working...
 
@@ -127,3 +129,107 @@ The metadate files are very simple, they are names the filename of the image wit
 </annotation>
 ```
 
+
+&nbsp;
+
+## sigsim command line options
+
+if you invoke `./sigsim --help` or `./sigsim -h`, you will see the output below. 
+
+```
+$ ./sigsim --help
+usage: sigsim [--help] {manual,debug,mark,crop,chop} ...
+
+positional arguments:
+  {manual,debug,mark,crop,chop}
+                        You must specify one of these subcommands
+
+optional arguments:
+  --help, -h            Shows this help text
+
+
+subcommand 'manual'
+usage: sigsim manual --input <inputfile> [--resolution <pixelsize>]
+
+optional arguments:
+  --input <inputfile>, -i <inputfile>
+                        input aerial image file
+  --resolution <pixelsize>
+                        Specify image resolution in centimeters per pixel, must specify if no image metadata exists yet
+
+
+subcommand 'debug'
+usage: sigsim debug --resolution <pixelsize> --shape <shapefile> [--output <outputfile>] [--rotate <deg>] [--perspective <cm>]
+
+optional arguments:
+  --resolution <pixelsize>
+                        Specify image resolution in centimeters per pixel
+  --shape <shapefile>, -s <shapefile>
+                        path to shape file for signal marks. 1 px = 1 cm, white on transparent bg
+  --output <outputfile>, -o <outputfile>
+                        output file, defaults to show on screen. If the word RANDOM (in all caps) appears anywhere, it will be
+                        replaced by eight random hex characters so you can write to unique random files.
+  --rotate <deg>, -r <deg>
+                        rotation in degrees, defaults to random rotation
+  --perspective <cm>, -p <cm>
+                        Maximum random perspective shift in cm
+
+
+subcommand 'mark'
+usage: sigsim mark --shape <shapefile> --input <inputfile> [--resolution <pixelsize>] [--output <outputfile>]
+                   [--random <from>-<to>] [--clearlanding <stddev>] [--brightdiff <from>-<to>] [--perspective <cm>]
+                   [--sizerange <smallest-biggest>]
+
+optional arguments:
+  --shape <shapefile>, -s <shapefile>
+                        path to shape file for signal marks. 1 px = 1 cm, white on transparent bg
+  --input <inputfile>, -i <inputfile>
+                        input aerial image file
+  --resolution <pixelsize>
+                        Specify image resolution in centimeters per pixel
+  --output <outputfile>, -o <outputfile>
+                        output file, defaults to show on screen. If the word RANDOM (in all caps) appears anywhere, it will be
+                        replaced by eight random hex characters so you can write to unique random files.
+  --random <from>-<to>  add between <from> and <to> randomly located signals
+  --clearlanding <stddev>, -l <stddev>
+                        Maximum stddev in any color channel for area to be suitably quiet for signal placement
+  --brightdiff <from>-<to>
+                        Range to increae or decrease pixels values by to create a mark. So setting 30-50 makes it pick one random
+                        value from 30 to 50 per mark to increase or decrease lightness of the mark area by.
+  --perspective <cm>, -p <cm>
+                        Maximum random perspective shift in cm
+  --sizerange <smallest-biggest>
+                        Random variation in signal size, e.g.: --sizerange 0.8-1.5
+
+
+subcommand 'crop'
+usage: sigsim crop --input <inputfile> [--output <outputfile>] [--width <width>] [--height <height>] [-x <x>] [-y <y>]
+
+optional arguments:
+  --input <inputfile>, -i <inputfile>
+                        input aerial image file
+  --output <outputfile>, -o <outputfile>
+                        output file, defaults to show on screen. If the word RANDOM (in all caps) appears anywhere, it will be
+                        replaced by eight random hex characters so you can write to unique random files.
+  --width <width>, -w <width>
+                        width of cropped area
+  --height <height>, -h <height>
+                        height of cropped area
+  -x <x>                x of left top
+  -y <y>                y of left top
+
+
+subcommand 'chop'
+usage: sigsim chop --input <inputfile> [--output <outputfile>] [--width <width>] [--height <height>]
+
+optional arguments:
+  --input <inputfile>, -i <inputfile>
+                        input aerial image file
+  --output <outputfile>, -o <outputfile>
+                        output file, defaults to show on screen. If the word RANDOM (in all caps) appears anywhere, it will be
+                        replaced by eight random hex characters so you can write to unique random files.
+  --width <width>, -w <width>
+                        width of each chunk
+  --height <height>, -h <height>
+                        height of each chunk
+```
