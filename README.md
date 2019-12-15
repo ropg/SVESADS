@@ -27,24 +27,6 @@ While the rescue efforts during the aftermath of hurricane Dorian were in progre
 
 &nbsp;
 
-## Case in point: Alice Springs
-
-### [Second person found alive in Northern Territory after two weeks missing in the outback](https://www.theguardian.com/australia-news/2019/dec/04/police-locate-body-near-alice-springs-believed-to-be-that-of-missing-woman-claire-hockridge)
-
-Just as I was working on this, in November/December 2019, three people went missing for almost two weeks after their car got stuck in the outback south of Alice Springs, Australia. They split up and the area where they could be was massive: the two survivors were found more than 60 km apart, the third person was found dead. They had to take cover from the sun in the daytime, so they could not be spotted from the air unless the search plane was low enough that they could hear it.
-
-
-![](images/missing.png)
-
-Now to be sure: if you're going to risk getting in trouble in the middle of nowhere, get a COSPAS/SARSAT Personal Locator Beacon. Size of a pack of cigarettes, costs 200 euros one-time fee, press button anywhere on earth and get help. 
-
-![](images/PLB.png)
-
-**But am I crazy in thinking that having an internationally standardized 6 x 6 meter symbol to be improvised on the ground which can be found by software on today's rapidly tasked commercial satellite images is still way way better than flying at low altitude while searching a massive area?**
-
-
-&nbsp;
-
 ## The signal
 
 So what we're looking for is a way to signal that help is needed, to be seen on satellite images. Here's some thoughts on this signal, in no particular order and with no guarantee that these all hold true.
@@ -96,3 +78,21 @@ Even without trying to detect the triangle in software but just from looking at 
 It looks likely that finding noisy, perspectively shifted, lo-res and otherwise mutilated copies of these signals in large sets of aerial images is a job for AI, machine learning, neural networks or whatever you want to call it. I knew very little beyond the basics here, but what I did know is that any use of Machine Learning / AI will require tons of training data: many images that contain different varieties of the signal. 
 
 There's only so many times you can make large H shapes on the ground and fly a drone or order aerial imagery, so what is needed is synthetic training data. That means software that takes the basic shape and randomly rotates, perpectively shifts, colors, and puts noise on it. It then looks at the aerial image and finds a "quiet spot" to put that shape and blends it with the image so that the edge pixels correctly dither from the signal color to the background. My python program sigsim does it all. The [README](files/sigsim/README.md) in the sigsim directory explains how it works in case you want to create your own synthetic training data.
+
+
+&nbsp;
+
+## Case in point: Alice Springs
+
+### [Second person found alive in Northern Territory after two weeks missing in the outback](https://www.theguardian.com/australia-news/2019/dec/04/police-locate-body-near-alice-springs-believed-to-be-that-of-missing-woman-claire-hockridge)
+
+Just as I was working on this, in November/December 2019, three people went missing for almost two weeks after their car got stuck in the outback south of Alice Springs, Australia. They split up and the area where they could be was massive: the two survivors were found more than 60 km apart, the third person was found dead. They had to take cover from the sun in the daytime, so they could not be spotted from the air unless the search plane was low enough that they could hear it.
+
+
+![](images/missing.png)
+
+Now to be sure: if you're going to risk getting in trouble in the middle of nowhere, get a COSPAS/SARSAT Personal Locator Beacon. Size of a pack of cigarettes, costs 200 euros one-time fee, press button anywhere on earth and get help. 
+
+![](images/PLB.png)
+
+**But am I crazy in thinking that having an internationally standardized 6 x 6 meter symbol to be improvised on the ground which can be found by software on today's rapidly tasked commercial satellite images is still way way better than flying at low altitude while searching a massive area?**
