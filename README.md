@@ -82,9 +82,9 @@ There's only so many times you can make large H shapes on the ground and fly a d
 
 &nbsp;
 
-## Case in point: Alice Springs
+## Case in point: Alice Springs 
 
-### [Second person found alive in Northern Territory after two weeks missing in the outback](https://www.theguardian.com/australia-news/2019/dec/04/police-locate-body-near-alice-springs-believed-to-be-that-of-missing-woman-claire-hockridge)
+### [Second person found alive in Northern Territory after two weeks missing in the outback](https://www.theguardian.com/australia-news/2019/dec/04/police-locate-body-near-alice-springs-believed-to-be-that-of-missing-woman-claire-hockridge) &nbsp;&nbsp;&nbsp;&nbsp;<sup>[archive](images/missing.pdf)</sup>
 
 Just as I was working on this, in November/December 2019, three people went missing for almost two weeks after their car got stuck in the outback south of Alice Springs, Australia. They split up and the area where they could be was massive: the two survivors were found more than 60 km apart, the third person was found dead. They had to take cover from the sun in the daytime, so they could not be spotted from the air unless the search plane was low enough that they could hear it.
 
