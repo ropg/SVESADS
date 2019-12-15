@@ -181,12 +181,15 @@ def merge_signal(photo, signal, p, lighter, to_color):
 		for j in range(w):
 			photopixel = photo[sy + i][sx + j]
 			alpha = signal[i][j][3] / 255
+			speckle = normal_dist(0, args.speckle, -255, 255)
 			for c in range(3):
 				pix = photo[sy + i][sx + j][c]
-				sig = to_color[c]
-				photo[sy + i][sx + j][c] = to_byte( pix + ( (lighter / 100) * alpha * abs(sig - pix) ) )
+				sig = normal_dist(to_color[c], args.noise)
+				photo[sy + i][sx + j][c] = to_byte( pix + ( (lighter / 100) * alpha * abs(sig - pix) ) + (speckle * alpha) )
 	
-	cv2.circle(photo, (x, y), 20, (0,0,255), 3)
+	if args.circlemarks:
+		cv2.circle(photo, (x, y), 20, (0,0,255), 3)
+		
 	return photo
 
 	
@@ -194,8 +197,8 @@ def normal_dist(mean, sd, minimum=0, maximum=255):
 	r = int(np.random.normal(mean, sd))
 	return max(min(r, maximum), minimum)
 	
-def to_byte(value):
-	return max(min(int(value), 255), 0)
+def to_byte(val):
+	return max(min(int(val), 255), 0)
 
 def place_mark(x = -1, y = -1, forced = False):
 
@@ -349,6 +352,16 @@ mark.add_argument('--contrast', '-c',
 	metavar='<contrast>',
 	default=150,
 	type=int)
+mark.add_argument('--noise', '-n',
+	help="Standard deviation of the value for each color of a pixel in the signal. Default: 3",
+	metavar='<noise>',
+	default=3,
+	type=int)
+mark.add_argument('--speckle',
+	help="Standard deviation of the lightness of a pixel in the signal. Default: 3",
+	metavar='<speckle>',
+	default=3,
+	type=int)
 mark.add_argument('--lighter',
 	help='Create marks by randomly picking a value in this range and then adding it to the RGB values for pixels in the mark area.',
 	metavar='<from>-<to>',
@@ -367,7 +380,11 @@ mark.add_argument('--sizerange',
 	metavar='<smallest-biggest>',
 	type=str,
 	default='0.9-1.1')
-	
+mark.add_argument('--circlemarks',
+	help="Draw red circles around the marks for debugging",
+	action='store_true',
+	default=False)
+
 crop = sp.add_parser('crop', add_help=False)
 crop.add_argument('--input', '-i',
 	help='input aerial image file',
