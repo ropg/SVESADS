@@ -20,7 +20,7 @@ If and when there is enough help available (a big if in some cases), people in c
 
 ![](images/rescue.png)
 
-And then there's the situations where people may be searching for a single group or invidual, lost in what may be a very large area. As seen above, people have survived because of makeshift signals, seen from low-flying aircraft or helicopters. Such signals can be seen from a few kilometers distance and are certainly a large step up from having to search the area on the surface. But when the search area is very large, even the ability to search from the low-flying aircraft still 
+And then there's the situations where people may be searching for a single group or invidual, lost in what may be a very large area. As seen above, people have survived because of makeshift signals, seen from low-flying aircraft or helicopters. Such signals can be seen from a few kilometers distance and are certainly a large step up from having to search the area on the surface. But when the search area is very large, even the ability to search from the low-flying aircraft still doesn't quite cut it. (See below)
 
 While the rescue efforts during the aftermath of hurricane Dorian were in progress, I was browsing the web and at some point looking at satellite images of the impacted area. It struck me that when disaster strikes, we now apparently have color images at 70 cm or even 50 cm resolution, taken multiple times a day. And then it hit me: wouldn't it be amazing if survivors below could somehow signal via these images that they needed help? With regular images like we seem to have now, we would have a way to find isolated people that need help in an area the size of a whole country.
 
@@ -91,8 +91,8 @@ Just as I was working on this, in November/December 2019, three people went miss
 
 ![](images/missing.png)
 
-Now to be sure: if you're going to risk getting in trouble in the middle of nowhere, get a COSPAS/SARSAT Personal Locator Beacon. Size of a pack of cigarettes, costs 200 euros one-time fee, press button anywhere on earth and get help. 
+Now to be sure: if you're going to risk getting in trouble in the middle of nowhere, please get a [COSPAS/SARSAT Personal Locator Beacon](https://en.wikipedia.org/wiki/Emergency_position-indicating_radiobeacon_station). Size of a pack of cigarettes, costs around 200 euros one-time fee, press button anywhere on earth and get help. 
 
 ![](images/PLB.png)
 
-**But am I crazy in thinking that having an internationally standardized 6 x 6 meter symbol to be improvised on the ground which can be found by software on today's rapidly tasked commercial satellite images is still way way better than flying at low altitude while searching a massive area?**
+**But am I crazy in thinking that when you're looking for people that _don't_ have a PLB, looking for an internationally standardized 6 x 6 meter symbol to be improvised on the ground which can be found by software on today's rapidly tasked commercial satellite images is still lightyears better than flying at low altitude while searching a massive area? Even if you do both: tasking imagery is likely much cheaper than flying helicopters and planes.**
