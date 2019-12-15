@@ -82,6 +82,24 @@ There's only so many times you can make large H shapes on the ground and fly a d
 
 &nbsp;
 
+## Further research and to-do list
+
+* Play with training the neural networks with the current set of training data.
+
+* Create improvised signals on beaches, rooftops, fields and make aerial images using drone to make sure the synthetic training data is as realistic as possible.
+
+
+&nbsp;
+
+## Dreaming of the far future
+
+I hope to prove that this seems like it can be done, as far as my abilities reach. Then I'll write this all up in a nice paper and seek to widely publish it. This, or something like this, then needs to be taken up by people that have more access to satellite images and computing resources to play with this on a larger scale. Possibly testing this with actual tasked images after volunteers improvise some signals accross an area as big as a small country.
+
+In the end, if this turns out to actually work, it would be amazing if the software to do this would be part of the image processing pipeline at DigitalGlobe, Planet and whoever else processes space images, so that they can just publish a list of where their software found distress signals. 
+
+
+&nbsp;
+
 ## Case in point: Alice Springs 
 
 ### [Second person found alive in Northern Territory after two weeks missing in the outback](https://www.theguardian.com/australia-news/2019/dec/04/police-locate-body-near-alice-springs-believed-to-be-that-of-missing-woman-claire-hockridge) &nbsp;&nbsp;&nbsp;&nbsp;<sup>[archive](images/missing.pdf)</sup>
@@ -95,4 +113,4 @@ Now to be sure: if you're going to risk getting in trouble in the middle of nowh
 
 ![](images/PLB.png)
 
-**But am I crazy in thinking that when you're looking for people that _don't_ have a PLB, looking for an internationally standardized 6 x 6 meter symbol to be improvised on the ground which can be found by software on today's rapidly tasked commercial satellite images is still lightyears better than flying at low altitude while searching a massive area? Even if you do both: tasking imagery is likely much cheaper than flying helicopters and planes.**
+**But am I crazy in thinking that when you're looking for people that _don't_ have a PLB, looking for an internationally standardized 6 x 6 meter symbol to be improvised on the ground which can be found by software on today's rapidly tasked commercial satellite images is still lightyears better than flying at low altitude while searching a massive area? The minute you're flying helicopters and planes, tasking imagery is not going to break the bank.**
