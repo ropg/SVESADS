@@ -113,4 +113,4 @@ Now to be sure: if you're going to risk getting in trouble in the middle of nowh
 
 ![](images/PLB.png)
 
-**But am I crazy in thinking that when you're looking for people that _don't_ have a PLB, looking for an internationally standardized 6 x 6 meter symbol to be improvised on the ground which can be found by software on today's rapidly tasked commercial satellite images is still lightyears better than flying at low altitude while searching a massive area? The minute you're flying helicopters and planes, tasking imagery is not going to break the bank.**
+**But am I crazy in thinking that when you're looking for people that _don't_ have a PLB, looking for an internationally standardized 6 x 6 meter symbol to be improvised on the ground which can be found by software on today's rapidly tasked commercial satellite images is still a powerful addition to flying at low altitude while searching a massive area? And let's be honest: when you're flying helicopters and planes, tasking imagery is not going to break the bank.**
