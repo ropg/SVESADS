@@ -65,11 +65,15 @@ I decided I needed to look at actual aerial images. So I bought a 4 x 6 meter [w
 
 &nbsp;
 
-## H for help
+## H for Help
 
-Even without trying to detect the triangle in software but just from looking at various aerial images, it's clear the triangle is probably too simple: there's simply too damn many triangles appearing in the wild. So this needs a more complex shape, yet one that is still simple enough to show itself when scaled down to something like 10x10 pixels and simple enough to be remembered and made by people in distress with whatever materials they have at hand. Behold the second experiment: "H for help"
+Even without trying to detect the triangle in software but just from looking at various aerial images, it became clear that a triangle is probably too simple of a shape: there's simply too damn many triangles appearing in the wild. So this needs a more complex shape, yet one that is still simple enough to show itself when scaled down to something like 10x10 pixels and most importantly: simple enough to be remembered and made by people in distress with whatever materials they have at hand. Behold the second experiment: "H for Help"
 
 ![](images/H.png)
+
+### But doesn't that also have false positives?
+
+Of course it does. There's helipads with H's on them that look somewhat similar (if less rectangular), hospitals may have large H's, and in a built-up everonment every so often you will seen a building air conditioner unit or a window washing crane that is shaped exactly like an H. But these are generally always there, so they can be marked as false positives. We need to do more actual testing, but in nature the 10 or so pixels seem to be enough to prevent false positives.
 
 &nbsp;
 
@@ -106,11 +110,13 @@ In the end, if this turns out to actually work, it would be amazing if the softw
 
 Just as I was working on this, in November/December 2019, three people went missing for almost two weeks after their car got stuck in the outback south of Alice Springs, Australia. They split up and the area where they could be was massive: the two survivors were found more than 60 km apart, the third person was found dead. They had to take cover from the sun in the daytime, so they could not be spotted from the air unless the search plane was low enough that they could hear it.
 
+(The image on which the H was superimposed under "H for Help" above is actually from the area in the Australian outback where these people got lost, also to show they would have had plenty of material to work with to create the contrast needed.)
+
 
 ![](images/missing.png)
 
-Now to be sure: if you're going to risk getting in trouble in the middle of nowhere, please get a [COSPAS/SARSAT Personal Locator Beacon](https://en.wikipedia.org/wiki/Emergency_position-indicating_radiobeacon_station). Size of a pack of cigarettes, costs around 200 euros one-time fee, press button anywhere on earth and get help. 
+Now to be sure: if you know you're going to risk getting in trouble in the middle of nowhere, please get a [COSPAS/SARSAT Personal Locator Beacon](https://en.wikipedia.org/wiki/Emergency_position-indicating_radiobeacon_station). They're the size of a pack of cigarettes and cost around 250 euros one-time fee. You press the button anywhere on earth and help is underway. 
 
 ![](images/PLB.png)
 
-**But am I crazy in thinking that when you're looking for people that _don't_ have a PLB, looking for an internationally standardized 6 x 6 meter symbol to be improvised on the ground which can be found by software on today's rapidly tasked commercial satellite images is still a powerful addition to flying at low altitude while searching a massive area? And let's be honest: when you're flying helicopters and planes, tasking imagery is not going to break the bank.**
+**But am I crazy in thinking that when you're looking for people that _don't_ have a PLB, looking for an internationally standardized 6 x 6 meter symbol to be improvised on the ground which can be found by software on today's rapidly tasked commercial satellite images is still a powerful addition to flying at low altitude while searching a massive area? When you're flying helicopters and planes, tasking imagery is probably not going to break the bank.**
